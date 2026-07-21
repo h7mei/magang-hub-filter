@@ -1,5 +1,5 @@
 import { ExternalLink } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { BookmarkButton } from "@/components/bookmarks/bookmark-button";
 import { CompanyLogoBadge } from "@/components/company-logo-badge";
@@ -22,42 +22,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useFilteredListings } from "@/hooks/use-filtered-listings";
 import { useFilters } from "@/hooks/use-filters";
 import { useFilteredLayoutContext } from "@/hooks/use-filtered-layout";
-import { fetchListings, formatDate } from "@/lib/api";
-import type { ListingRecord, ListingsResponse } from "@/types";
+import { formatDate } from "@/lib/api";
+import type { ListingRecord } from "@/types";
 
 export function FilterPage() {
   const { filters, updateFilters } = useFilters();
   const { meta } = useFilteredLayoutContext();
-  const [payload, setPayload] = useState<ListingsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { listings: payload, mapData, loading, error } = useFilteredListings(filters);
   const [selected, setSelected] = useState<ListingRecord | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-
-    const timer = window.setTimeout(() => {
-      fetchListings(filters)
-        .then((response) => {
-          if (!cancelled) setPayload(response);
-        })
-        .catch(() => {
-          if (!cancelled) setError("Failed to load listings");
-        })
-        .finally(() => {
-          if (!cancelled) setLoading(false);
-        });
-    }, 250);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [filters]);
 
   const stats = payload?.stats;
   const pagination = payload?.pagination;
@@ -73,7 +48,7 @@ export function FilterPage() {
           </p>
         </div>
 
-        <ListingsMapPanel filters={filters} />
+        <ListingsMapPanel filters={filters} mapData={mapData} loading={loading} />
 
         <ListingsStatsPanel
           stats={stats}

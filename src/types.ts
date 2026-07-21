@@ -25,6 +25,8 @@ export interface ListingRecord {
   study_programs_label?: string;
   days_off_label?: string;
   bookmarked_at?: string;
+  /** Precomputed at load time for fast text search — not persisted in JSON. */
+  _search?: string;
 }
 
 export interface FilterOptions extends Record<string, string[]> {}

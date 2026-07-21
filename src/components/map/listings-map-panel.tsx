@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Map, MapControls } from "@/components/ui/map";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCoachMarks } from "@/hooks/use-coach-marks";
-import { fetchCompanyListings, fetchMapCompanies, formatDate } from "@/lib/api";
+import { fetchCompanyListings, formatDate } from "@/lib/api";
 import type {
   CompanyListingsResponse,
   CompanyMapProperties,
@@ -166,11 +166,17 @@ function CompanyPositionsDetail({
   );
 }
 
-export function ListingsMapPanel({ filters }: { filters: FilterState }) {
+export function ListingsMapPanel({
+  filters,
+  mapData,
+  loading,
+}: {
+  filters: FilterState;
+  mapData: MapCompaniesResponse | null;
+  loading: boolean;
+}) {
   const { active, step } = useCoachMarks();
   const showBookmarkCoachDemo = active && step?.id === "bookmark";
-  const [mapData, setMapData] = useState<MapCompaniesResponse | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
   const [selectedPreview, setSelectedPreview] = useState<CompanyMapProperties | null>(null);
@@ -178,32 +184,12 @@ export function ListingsMapPanel({ filters }: { filters: FilterState }) {
   const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
     setSelectedMarkerId(null);
     setSelectedPreview(null);
     setCompanyPayload(null);
     setDetailLoading(false);
-
-    const timer = window.setTimeout(() => {
-      fetchMapCompanies(filters)
-        .then((response) => {
-          if (!cancelled) setMapData(response);
-        })
-        .catch(() => {
-          if (!cancelled) setError("Failed to load company map data");
-        })
-        .finally(() => {
-          if (!cancelled) setLoading(false);
-        });
-    }, 250);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [filters]);
+    setError(null);
+  }, [mapData]);
 
   const geoJson = useMemo<FeatureCollection<Point, CompanyMapProperties>>(() => {
     if (!mapData) {

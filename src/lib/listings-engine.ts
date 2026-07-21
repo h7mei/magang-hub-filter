@@ -27,11 +27,8 @@ function parseDatetime(value: string | null | undefined): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function matchesSearch(record: ListingRecord, query: string): boolean {
-  const needle = query.trim().toLowerCase();
-  if (!needle) return true;
-
-  const haystacks = [
+export function buildSearchBlob(record: ListingRecord): string {
+  return [
     record.position_name,
     record.company_name,
     record.location,
@@ -39,11 +36,17 @@ function matchesSearch(record: ListingRecord, query: string): boolean {
     record.task_description,
     (record.study_programs ?? []).join(", "),
     (record.education_levels ?? []).join(", "),
-  ];
-  const combined = haystacks
+  ]
     .filter((item) => item)
     .join(" ")
     .toLowerCase();
+}
+
+function matchesSearch(record: ListingRecord, query: string): boolean {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return true;
+
+  const combined = record._search ?? buildSearchBlob(record);
   return combined.includes(needle);
 }
 
@@ -69,13 +72,14 @@ function matchesDateRange(value: string | null | undefined, start: Date | null, 
 function recordMatchesFieldFilter(record: ListingRecord, field: string, selected: string[]): boolean {
   if (selected.length === 0) return true;
 
+  const selectedSet = new Set(selected);
   const raw = record[field as keyof ListingRecord];
   if (Array.isArray(raw)) {
-    return raw.some((item) => selected.includes(String(item)));
+    return raw.some((item) => selectedSet.has(String(item)));
   }
 
   if (raw == null || raw === "") return false;
-  return selected.includes(String(raw));
+  return selectedSet.has(String(raw));
 }
 
 function mergeFieldFilters(filters: FilterState): Record<string, string[]> {
@@ -478,9 +482,12 @@ export function buildMapPoints(records: ListingRecord[]): MapPointsResponse {
   };
 }
 
-export function queryListings(records: ListingRecord[], filters: FilterState): ListingsResponse {
-  const filtered = filterRecords(records, filters);
-  const sorted = sortRecords(filtered, filters.sort_by, filters.order);
+export function paginateListings(
+  sorted: ListingRecord[],
+  filtered: ListingRecord[],
+  filters: FilterState,
+  stats?: ListingsStats,
+): ListingsResponse {
   const page = Math.max(1, Number.parseInt(filters.page || "1", 10) || 1);
   const perPage = Math.min(100, Math.max(1, Number.parseInt(filters.per_page || "20", 10) || 20));
   const total = sorted.length;
@@ -495,8 +502,14 @@ export function queryListings(records: ListingRecord[], filters: FilterState): L
       total,
       total_pages: Math.max(1, Math.ceil(total / perPage)),
     },
-    stats: buildStats(filtered),
+    stats: stats ?? buildStats(filtered),
   };
+}
+
+export function queryListings(records: ListingRecord[], filters: FilterState): ListingsResponse {
+  const filtered = filterRecords(records, filters);
+  const sorted = sortRecords(filtered, filters.sort_by, filters.order);
+  return paginateListings(sorted, filtered, filters, buildStats(filtered));
 }
 
 export function queryMapCompanies(records: ListingRecord[], filters: FilterState): MapCompaniesResponse {
@@ -669,6 +682,7 @@ export function buildStaticDataset(meta: MetaResponse, payload: StaticListingsPa
   const records = dedupeRecordsById(payload.data);
   const recordsById = new Map<string, ListingRecord>();
   for (const record of records) {
+    record._search = buildSearchBlob(record);
     recordsById.set(record.id, record);
   }
   return {

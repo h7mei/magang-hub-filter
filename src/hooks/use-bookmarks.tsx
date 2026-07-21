@@ -12,7 +12,6 @@ import { fetchListingById } from "@/lib/api";
 import {
   addBookmarkListing,
   getBookmarksStorageKey,
-  loadBookmarkIds,
   loadBookmarkListings,
   removeBookmarkListing,
 } from "@/lib/bookmark-storage";
@@ -38,7 +37,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   const refreshBookmarks = useCallback(() => {
     const items = loadBookmarkListings();
     setListings(items);
-    setIds(new Set(loadBookmarkIds()));
+    setIds(new Set(items.map((item) => item.id)));
     setLoading(false);
   }, []);
 
