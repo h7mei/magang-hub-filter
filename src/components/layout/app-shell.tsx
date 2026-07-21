@@ -1,11 +1,13 @@
-import { Bookmark, Filter, SlidersHorizontal } from "lucide-react";
+import { Bookmark, Filter, HelpCircle, SlidersHorizontal } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
+import { CoachMarksOverlay } from "@/components/coach-marks/coach-marks-overlay";
 import { FilterModal } from "@/components/filters/filter-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useCoachMarks } from "@/hooks/use-coach-marks";
 import { useFilterPanel } from "@/hooks/use-filter-panel";
 import { hasActiveFilters } from "@/lib/filter-state";
 import { useFilters } from "@/hooks/use-filters";
@@ -34,6 +36,7 @@ function isNavItemActive(pathname: string, item: (typeof navItems)[number]) {
 export function AppShell() {
   const { count } = useBookmarks();
   const location = useLocation();
+  const { resetTour } = useCoachMarks();
   const { setOpen: setFilterModalOpen } = useFilterPanel();
   const { filters } = useFilters();
   const isFilteredRoute = location.pathname === "/";
@@ -57,12 +60,23 @@ export function AppShell() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={resetTour}
+              aria-label="Show tips"
+              title="Show tips"
+            >
+              <HelpCircle className="size-4" />
+            </Button>
             {isFilteredRoute ? (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 className="gap-2"
+                data-coach-mark="filters"
                 onClick={() => setFilterModalOpen(true)}
               >
                 <SlidersHorizontal className="size-4" />
@@ -86,6 +100,7 @@ export function AppShell() {
                 key={item.to}
                 to={item.to}
                 end={item.to === "/"}
+                data-coach-mark={item.to === "/bookmarks" ? "bookmarks-nav" : undefined}
                 className={() =>
                   cn(
                     "flex min-w-0 items-start gap-3 rounded-lg border px-3 py-3 transition-colors sm:px-4",
@@ -142,6 +157,7 @@ export function AppShell() {
       </main>
 
       {isFilteredRoute ? <FilterModal /> : null}
+      <CoachMarksOverlay />
     </div>
   );
 }

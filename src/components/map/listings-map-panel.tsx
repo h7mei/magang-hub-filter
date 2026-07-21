@@ -2,6 +2,7 @@ import type { FeatureCollection, Point } from "geojson";
 import { ExternalLink, Loader2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { BookmarkCoachDemo } from "@/components/coach-marks/bookmark-coach-demo";
 import { BookmarkButton } from "@/components/bookmarks/bookmark-button";
 import { CompanyLogoBadge } from "@/components/company-logo-badge";
 import { MapCompanyMarkersLayer } from "@/components/map/map-company-markers-layer";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Map, MapControls } from "@/components/ui/map";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useCoachMarks } from "@/hooks/use-coach-marks";
 import { fetchCompanyListings, fetchMapCompanies, formatDate } from "@/lib/api";
 import type {
   CompanyListingsResponse,
@@ -60,12 +62,24 @@ function CompanyPositionsDetail({
   loading,
   preview,
   onClose,
+  showBookmarkCoachDemo,
 }: {
   payload: CompanyListingsResponse | null;
   loading: boolean;
   preview: CompanyMapProperties | null;
   onClose: () => void;
+  showBookmarkCoachDemo: boolean;
 }) {
+  if (showBookmarkCoachDemo) {
+    return (
+      <Card className="flex h-full min-h-0 min-w-0 flex-col">
+        <CardContent className="flex flex-1 flex-col items-stretch justify-start pt-6">
+          <BookmarkCoachDemo />
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!payload && !loading && !preview) {
     return (
       <Card className="flex h-full min-h-0 min-w-0 flex-col">
@@ -153,6 +167,8 @@ function CompanyPositionsDetail({
 }
 
 export function ListingsMapPanel({ filters }: { filters: FilterState }) {
+  const { active, step } = useCoachMarks();
+  const showBookmarkCoachDemo = active && step?.id === "bookmark";
   const [mapData, setMapData] = useState<MapCompaniesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -266,6 +282,7 @@ export function ListingsMapPanel({ filters }: { filters: FilterState }) {
           loading={detailLoading}
           preview={selectedPreview}
           onClose={clearSelection}
+          showBookmarkCoachDemo={showBookmarkCoachDemo}
         />
       </div>
     </section>

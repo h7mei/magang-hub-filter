@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/layout/app-shell";
 import { FilteredLayout } from "@/components/layout/filtered-layout";
 import { BookmarksProvider } from "@/hooks/use-bookmarks";
+import { CoachMarksProvider } from "@/hooks/use-coach-marks";
 import { FilterPanelProvider } from "@/hooks/use-filter-panel";
 import { FiltersProvider } from "@/hooks/use-filters";
 import { ListingsDataProvider } from "@/hooks/use-listings-data";
@@ -16,6 +17,7 @@ export default function App() {
         <BookmarksProvider>
           <FiltersProvider>
             <FilterPanelProvider>
+            <CoachMarksProvider>
             <Routes>
               <Route element={<AppShell />}>
                 <Route element={<FilteredLayout />}>
@@ -26,6 +28,7 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Routes>
+            </CoachMarksProvider>
             </FilterPanelProvider>
           </FiltersProvider>
         </BookmarksProvider>
