@@ -7,7 +7,7 @@ import { ListingsMapPanel } from "@/components/map/listings-map-panel";
 import { ListingsStatsPanel } from "@/components/stats/listings-stats-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -82,6 +82,9 @@ export function FilterPage() {
         />
 
         <Card className="min-w-0 overflow-hidden">
+          <CardHeader>
+            <CardTitle className="text-base">Listings</CardTitle>
+          </CardHeader>
           <CardContent className="min-w-0 px-0 pb-0">
             <div className="space-y-3 p-4 lg:hidden">
               {loading ? (
@@ -141,7 +144,7 @@ export function FilterPage() {
               )}
             </div>
 
-            <div className="hidden min-w-0 lg:block">
+            <div className="hidden min-w-0 px-6 lg:block">
             <Table>
               <TableHeader>
                 <TableRow>
