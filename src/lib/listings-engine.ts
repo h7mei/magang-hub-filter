@@ -652,14 +652,31 @@ export type StaticDataset = {
   recordsById: Map<string, ListingRecord>;
 };
 
+function dedupeRecordsById(records: ListingRecord[]): ListingRecord[] {
+  const seen = new Set<string>();
+  const deduped: ListingRecord[] = [];
+
+  for (const record of records) {
+    if (seen.has(record.id)) continue;
+    seen.add(record.id);
+    deduped.push(record);
+  }
+
+  return deduped;
+}
+
 export function buildStaticDataset(meta: MetaResponse, payload: StaticListingsPayload): StaticDataset {
+  const records = dedupeRecordsById(payload.data);
   const recordsById = new Map<string, ListingRecord>();
-  for (const record of payload.data) {
+  for (const record of records) {
     recordsById.set(record.id, record);
   }
   return {
-    meta,
-    records: payload.data,
+    meta: {
+      ...meta,
+      loaded_records: records.length,
+    },
+    records,
     recordsById,
   };
 }

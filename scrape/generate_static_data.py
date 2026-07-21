@@ -11,6 +11,13 @@ Usage:
 """
 
 from __future__ import annotations
+from scrape.logo_cache import (
+    LOGOS_DIR,
+    apply_local_logos_to_records,
+    ensure_logo_manifest,
+    load_logo_manifest,
+    logo_cache_stats,
+)
 
 import argparse
 import json
@@ -25,13 +32,6 @@ ROOT_DIR = SCRAPE_DIR.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from scrape.logo_cache import (
-    LOGOS_DIR,
-    apply_local_logos_to_records,
-    ensure_logo_manifest,
-    load_logo_manifest,
-    logo_cache_stats,
-)
 
 DEFAULT_DATA_PATH = SCRAPE_DIR / "output" / "lowongan.json"
 PUBLIC_DIR = ROOT_DIR / "public"
@@ -106,7 +106,23 @@ def rewrite_logo_urls_for_static(records: list[dict[str, Any]]) -> None:
     for record in records:
         url = record.get("company_logo_url")
         if isinstance(url, str) and url.startswith("/api/logos/"):
-            record["company_logo_url"] = url.replace("/api/logos/", "/logos/", 1)
+            record["company_logo_url"] = url.replace(
+                "/api/logos/", "/logos/", 1)
+
+
+def dedupe_records_by_id(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    deduped: list[dict[str, Any]] = []
+
+    for record in records:
+        record_id = record.get("id")
+        if isinstance(record_id, str):
+            if record_id in seen:
+                continue
+            seen.add(record_id)
+        deduped.append(record)
+
+    return deduped
 
 
 def load_records(data_path: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -116,7 +132,7 @@ def load_records(data_path: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]
     with data_path.open(encoding="utf-8") as handle:
         dataset = json.load(handle)
 
-    records = list(dataset.get("data") or [])
+    records = dedupe_records_by_id(list(dataset.get("data") or []))
     if LOGOS_DIR.exists():
         ensure_logo_manifest(records)
     else:
