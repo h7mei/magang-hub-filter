@@ -1,4 +1,4 @@
-import { Bookmark, Filter, HelpCircle, SlidersHorizontal } from "lucide-react";
+import { Bookmark, ExternalLink, Filter, HelpCircle, SlidersHorizontal } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { CoachMarksOverlay } from "@/components/coach-marks/coach-marks-overlay";
@@ -12,6 +12,8 @@ import { useFilterPanel } from "@/hooks/use-filter-panel";
 import { hasActiveFilters } from "@/lib/filter-state";
 import { useFilters } from "@/hooks/use-filters";
 import { cn } from "@/lib/utils";
+
+const GITHUB_REPO_URL = "https://github.com/h7mei/magang-hub-filter";
 
 const navItems = [
   {
@@ -147,6 +149,24 @@ export function AppShell() {
       <main className="mx-auto min-w-0 max-w-[1600px] px-4 py-6 lg:px-6">
         <Outlet />
       </main>
+
+      <footer className="border-t bg-background/95">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 px-4 py-4 text-xs text-muted-foreground lg:px-6">
+          <p>
+            Built by{" "}
+            <span className="font-medium text-foreground">hanafichoi</span>
+          </p>
+          <a
+            href={GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
+          >
+            <ExternalLink className="size-3.5" />
+            View on GitHub
+          </a>
+        </div>
+      </footer>
 
       {isFilteredRoute ? <FilterModal /> : null}
       <CoachMarksOverlay />
