@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -43,7 +44,6 @@ export function CoachMarksProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [active, setActive] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
-  const [autoStartRequested, setAutoStartRequested] = useState(false);
 
   const step = active ? (COACH_MARK_STEPS[stepIndex] ?? null) : null;
   const totalSteps = COACH_MARK_STEPS.length;
@@ -84,18 +84,27 @@ export function CoachMarksProvider({ children }: { children: ReactNode }) {
     startTour();
   }, [startTour]);
 
+  const navigateRef = useRef(navigate);
+  const locationRef = useRef(location);
+  navigateRef.current = navigate;
+  locationRef.current = location;
+
   useEffect(() => {
-    if (location.pathname !== "/" || hasCompletedCoachMarks() || autoStartRequested) {
+    if (hasCompletedCoachMarks()) {
       return;
     }
 
-    setAutoStartRequested(true);
     const timer = window.setTimeout(() => {
-      startTour();
+      if (locationRef.current.pathname !== "/") {
+        navigateRef.current("/");
+      }
+      setStepIndex(0);
+      setActive(true);
+      markCoachMarksCompleted();
     }, AUTO_START_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [autoStartRequested, location.pathname, startTour]);
+  }, []);
 
   const value = useMemo(
     () => ({

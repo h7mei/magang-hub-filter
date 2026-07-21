@@ -102,7 +102,7 @@ export function AppShell() {
                   cn(
                     "flex min-w-0 items-start gap-3 rounded-lg border px-3 py-3 transition-colors sm:px-4",
                     isNavItemActive(location.pathname, item)
-                      ? "border-primary/30 bg-primary text-primary-foreground shadow-sm"
+                      ? "border-primary bg-background shadow-sm"
                       : "border-transparent bg-background hover:bg-accent",
                   )
                 }
@@ -115,7 +115,7 @@ export function AppShell() {
                       <item.icon
                         className={cn(
                           "mt-0.5 size-4 shrink-0",
-                          !isActive && "text-muted-foreground",
+                          isActive ? "text-primary" : "text-muted-foreground",
                         )}
                       />
                       <span className="min-w-0 flex-1">
@@ -130,12 +130,7 @@ export function AppShell() {
                             </Badge>
                           ) : null}
                         </span>
-                        <span
-                          className={cn(
-                            "block text-xs leading-snug",
-                            isActive ? "text-primary-foreground/80" : "text-muted-foreground",
-                          )}
-                        >
+                        <span className="block text-xs leading-snug text-muted-foreground">
                           {item.description}
                         </span>
                       </span>
