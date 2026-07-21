@@ -10,6 +10,11 @@ import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useCoachMarks } from "@/hooks/use-coach-marks";
 import { useFilterPanel } from "@/hooks/use-filter-panel";
 import { hasActiveFilters } from "@/lib/filter-state";
+import {
+  getCurrentSchedulePhase,
+  INTERNSHIP_BATCH,
+  scheduleStatusBadgeClassName,
+} from "@/lib/internship-schedule";
 import { useFilters } from "@/hooks/use-filters";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +48,7 @@ export function AppShell() {
   const { filters } = useFilters();
   const isFilteredRoute = location.pathname === "/";
   const filtersActive = hasActiveFilters(filters);
+  const currentPhase = getCurrentSchedulePhase();
 
   return (
     <div className="min-h-svh overflow-x-hidden bg-muted/30">
@@ -51,7 +57,7 @@ export function AppShell() {
           <div className="flex min-w-0 items-center gap-3">
             <div className="min-w-0">
               <h1 className="truncate text-base font-semibold tracking-tight">
-                MagangHub Filter
+                MagangHub Filter · {INTERNSHIP_BATCH.label}
               </h1>
               <p className="truncate text-xs text-muted-foreground">
                 MagangHub filters suck — scrape once, filter faster
@@ -87,8 +93,15 @@ export function AppShell() {
                 ) : null}
               </Button>
             ) : null}
-            <Badge variant="secondary" className="hidden sm:inline-flex">
-              Kemnaker Magang Nasional
+            <Badge
+              variant="secondary"
+              className={cn(
+                "hidden sm:inline-flex",
+                scheduleStatusBadgeClassName(currentPhase.status),
+              )}
+              title={currentPhase.title}
+            >
+              {currentPhase.statusLabel} · {currentPhase.dateLabel}
             </Badge>
           </div>
         </div>
