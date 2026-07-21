@@ -5,6 +5,5 @@ export function hasActiveFilters(filters: FilterState): boolean {
   if (Object.keys(filters.fields).length > 0) return true;
   if (filters.quota_min || filters.quota_max) return true;
   if (filters.working_days_min || filters.working_days_max) return true;
-  if (filters.published_from || filters.published_to) return true;
   return false;
 }

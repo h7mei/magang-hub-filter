@@ -23,6 +23,8 @@ export const FILTER_RESERVED_PARAMS = new Set([
 
 export const RANGE_FILTER_FIELDS = new Set(["quota", "working_days_per_week", "published_at"]);
 
+export const FILTER_HIDDEN_FIELDS = new Set(["created_at", "updated_at"]);
+
 export const FILTER_FIELD_LABELS: Record<string, string> = {
   position_name: "Position",
   company_name: "Company",
@@ -37,8 +39,6 @@ export const FILTER_FIELD_LABELS: Record<string, string> = {
   working_days_per_week: "Working Days / Week",
   days_off: "Days Off",
   task_description: "Task Description",
-  created_at: "Created At",
-  updated_at: "Updated At",
 };
 
 export const FILTER_FIELD_ORDER = [
@@ -54,8 +54,6 @@ export const FILTER_FIELD_ORDER = [
   "study_programs",
   "days_off",
   "task_description",
-  "created_at",
-  "updated_at",
 ];
 
 export function normalizeFilterField(field: string): string {
@@ -75,7 +73,9 @@ export function getFilterFieldLabel(field: string): string {
 }
 
 export function getMultiSelectFilterFields(options: FilterOptions): string[] {
-  const fields = Object.keys(options).filter((field) => !RANGE_FILTER_FIELDS.has(field));
+  const fields = Object.keys(options).filter(
+    (field) => !RANGE_FILTER_FIELDS.has(field) && !FILTER_HIDDEN_FIELDS.has(field),
+  );
 
   return fields.sort((left, right) => {
     const leftIndex = FILTER_FIELD_ORDER.indexOf(left);

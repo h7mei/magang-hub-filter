@@ -125,28 +125,6 @@ export function FilterSidebar({
           />
         </div>
 
-        <div className="min-w-0 space-y-2">
-          <Label htmlFor="publishedFrom">Published From</Label>
-          <Input
-            id="publishedFrom"
-            type="date"
-            value={filters.published_from}
-            onChange={(event) =>
-              onChange({ published_from: event.target.value, page: "1" })
-            }
-          />
-        </div>
-        <div className="min-w-0 space-y-2">
-          <Label htmlFor="publishedTo">Published To</Label>
-          <Input
-            id="publishedTo"
-            type="date"
-            value={filters.published_to}
-            onChange={(event) =>
-              onChange({ published_to: event.target.value, page: "1" })
-            }
-          />
-        </div>
       </div>
     </div>
   );

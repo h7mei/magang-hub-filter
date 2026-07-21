@@ -39,7 +39,8 @@ DATA_DIR = PUBLIC_DIR / "data"
 LOGOS_OUTPUT_DIR = PUBLIC_DIR / "logos"
 
 FILTER_EXCLUDED_FIELDS = frozenset(
-    {"id", "detail_url", "company_logo_url", "latitude", "longitude"}
+    {"id", "detail_url", "company_logo_url", "latitude",
+        "longitude", "created_at", "updated_at"}
 )
 
 SORT_OPTIONS = [
