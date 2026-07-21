@@ -73,7 +73,7 @@ function getTooltipStyle(
 }
 
 export function CoachMarksOverlay() {
-  const { active, step, stepIndex, totalSteps, nextStep, previousStep, skipTour } =
+  const { active, step, stepIndex, totalSteps, dataReady, nextStep, previousStep, skipTour } =
     useCoachMarks();
   const target = useCoachMarkTarget(step, active);
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null);
@@ -172,7 +172,9 @@ export function CoachMarksOverlay() {
         </p>
         {!target ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            Waiting for this part of the page to load...
+            {!dataReady
+              ? "Loading listings data before tips can continue..."
+              : "Waiting for this part of the page to load..."}
           </p>
         ) : null}
 

@@ -2,6 +2,7 @@ import { Bookmark, ExternalLink, Filter, HelpCircle, SlidersHorizontal } from "l
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { CoachMarksOverlay } from "@/components/coach-marks/coach-marks-overlay";
+import { CoachMarksDataAwaiting } from "@/components/coach-marks/coach-marks-data-awaiting";
 import { FilterModal } from "@/components/filters/filter-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -182,6 +183,7 @@ export function AppShell() {
       </footer>
 
       {isFilteredRoute ? <FilterModal /> : null}
+      <CoachMarksDataAwaiting />
       <CoachMarksOverlay />
     </div>
   );

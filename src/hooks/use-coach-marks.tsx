@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { useListingsData } from "@/hooks/use-listings-data";
 import { COACH_MARK_STEPS, type CoachMarkStep } from "@/lib/coach-marks-steps";
 import {
   hasCompletedCoachMarks,
@@ -22,6 +23,8 @@ interface CoachMarksContextValue {
   stepIndex: number;
   step: CoachMarkStep | null;
   totalSteps: number;
+  dataReady: boolean;
+  awaitingDataLoad: boolean;
   startTour: () => void;
   skipTour: () => void;
   nextStep: () => void;
@@ -34,6 +37,7 @@ const CoachMarksContext = createContext<CoachMarksContextValue | null>(null);
 const TARGET_WAIT_MS = 8000;
 const TARGET_POLL_MS = 200;
 const AUTO_START_DELAY_MS = 900;
+const DATA_AWAITING_DELAY_MS = 2500;
 
 function findStepTarget(selector: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(selector);
@@ -42,8 +46,13 @@ function findStepTarget(selector: string): HTMLElement | null {
 export function CoachMarksProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { loading: dataLoading, dataset } = useListingsData();
   const [active, setActive] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
+  const [dataLoadingSlow, setDataLoadingSlow] = useState(false);
+  const dataReady = !dataLoading && dataset !== null;
+  const awaitingDataLoad =
+    !dataReady && dataLoadingSlow && !hasCompletedCoachMarks();
 
   const step = active ? (COACH_MARK_STEPS[stepIndex] ?? null) : null;
   const totalSteps = COACH_MARK_STEPS.length;
@@ -90,7 +99,23 @@ export function CoachMarksProvider({ children }: { children: ReactNode }) {
   locationRef.current = location;
 
   useEffect(() => {
-    if (hasCompletedCoachMarks()) {
+    if (dataReady) {
+      setDataLoadingSlow(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setDataLoadingSlow(true);
+    }, DATA_AWAITING_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(timer);
+      setDataLoadingSlow(false);
+    };
+  }, [dataReady]);
+
+  useEffect(() => {
+    if (hasCompletedCoachMarks() || !dataReady) {
       return;
     }
 
@@ -100,11 +125,10 @@ export function CoachMarksProvider({ children }: { children: ReactNode }) {
       }
       setStepIndex(0);
       setActive(true);
-      markCoachMarksCompleted();
     }, AUTO_START_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [dataReady]);
 
   const value = useMemo(
     () => ({
@@ -112,6 +136,8 @@ export function CoachMarksProvider({ children }: { children: ReactNode }) {
       stepIndex,
       step,
       totalSteps,
+      dataReady,
+      awaitingDataLoad,
       startTour,
       skipTour,
       nextStep,
@@ -120,6 +146,8 @@ export function CoachMarksProvider({ children }: { children: ReactNode }) {
     }),
     [
       active,
+      awaitingDataLoad,
+      dataReady,
       nextStep,
       previousStep,
       resetTour,
