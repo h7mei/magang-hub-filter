@@ -120,7 +120,7 @@ export function FilterPage() {
             </div>
 
             <div className="hidden min-w-0 px-6 lg:block">
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
                   <TableHead>Position</TableHead>
@@ -128,8 +128,8 @@ export function FilterPage() {
                   <TableHead>Location</TableHead>
                   <TableHead>Quota</TableHead>
                   <TableHead>Education</TableHead>
-                  <TableHead>Programs</TableHead>
-                  <TableHead />
+                  <TableHead className="w-[220px] max-w-[220px]">Programs</TableHead>
+                  <TableHead className="w-[7.5rem]" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -183,10 +183,14 @@ export function FilterPage() {
                           ))}
                         </div>
                       </TableCell>
-                      <TableCell className="whitespace-normal">
-                        <div className="flex max-w-[220px] flex-wrap gap-1">
+                      <TableCell className="max-w-[220px] min-w-0 align-top whitespace-normal">
+                        <div className="flex min-w-0 flex-wrap gap-1">
                           {(record.study_programs ?? []).slice(0, 2).map((value) => (
-                            <Badge key={value} variant="outline">
+                            <Badge
+                              key={value}
+                              variant="outline"
+                              className="h-auto max-w-full shrink whitespace-normal break-words text-left leading-snug"
+                            >
                               {value}
                             </Badge>
                           ))}
